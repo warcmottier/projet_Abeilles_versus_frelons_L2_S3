@@ -85,7 +85,7 @@ int ressourcesAbeille, ressourcesFrelon;
  * @param force 
  * @return Unite* 
  */
-Unite* alloueCellule(char camp, char type, int force);
+Unite* alloueCellule(char camp, char type);
 
 /**
  * @brief insere en tête de la liste unite(u), colonie(c), ou combat(f) et renvoie 1 si réussi 0 sinon
