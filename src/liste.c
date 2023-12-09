@@ -1,6 +1,6 @@
 #include "liste.h"
 
-Unite* alloueCellule(char camp, char type){
+Unite* alloueCellule(char camp, char type,int x,int y){
   Unite* ruche = malloc(sizeof(Unite));
   if (!ruche) {
     return NULL;
@@ -27,10 +27,11 @@ Unite* alloueCellule(char camp, char type){
       break;
   }
   (*ruche).camp = camp; (*ruche).type = type; (*roche).force = force;
+  (*ruche).x = x; (*ruche).y = y;
   return ruche;
 }
 
-float rechercheDispo(UListe l, int* x, int* y){
+int rechercheDispo(UListe l, int* x, int* y){
   for (int i = -1; i< 2; i++){
     for (int j = -1; j< 2; j++){
       Uliste* depart = &l;
@@ -46,8 +47,11 @@ float rechercheDispo(UListe l, int* x, int* y){
   return 0;
 }
 
-int insereEnTete(UListe* l, char type){
-  Unite* tete = alloueCellule((**l).camp,type);
+int insereEnTete(UListe* l, char type, int x, int y){
+  int x_val = x; int y_val = y;
+  if (rechercheDispo(l,&x_val,&y_val) != 0){
+    Unite* tete = alloueCellule((**l).camp,type,x_val,y_val);
+  }
   if(!tete){
     return 0;
   }
