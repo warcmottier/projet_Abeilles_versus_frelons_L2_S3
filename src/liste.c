@@ -30,6 +30,22 @@ Unite* alloueCellule(char camp, char type){
   return ruche;
 }
 
+float rechercheDispo(UListe l, int* x, int* y){
+  for (int i = -1; i< 2; i++){
+    for (int j = -1; j< 2; j++){
+      Uliste* depart = &l;
+      do{
+        if (l.x != x+i && l.y != y+j){
+          *x = x+i; *y= y+j;
+          return 1;
+        }
+        l = (*l).usuiv;
+      } while(&l != depart)
+    }
+  }
+  return 0;
+}
+
 int insereEnTete(UListe* l, char type){
   Unite* tete = alloueCellule((**l).camp,type);
   if(!tete){
