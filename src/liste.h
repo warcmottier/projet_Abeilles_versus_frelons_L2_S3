@@ -90,34 +90,28 @@ int ressourcesAbeille, ressourcesFrelon;
 Unite* alloueCellule(char camp, char type, int x, int y);
 
 /**
- * @brief recherche une case disponible aux alentours
- *
- * @param l
- * @param x
- * @param y
- * @return int
- */
-int rechercheDispo(UListe l, int* x, int* y);
-
-/**
- * @brief insere en tête de la liste unite(u), colonie(c), ou combat(f) et renvoie 1 si réussi 0 sinon
+ * @brief insere en tête de la liste unite(u), colonie(c) et renvoie 1 si réussi 0 sinon
  * 
  * @param l 
- * @param type
- * @param x
- * @param y
- * @return int 
- */
-int insereEnTete(UListe* l, char type, int x, int y);
-
-/**
- * @brief supprime de la liste unite(u), colonie(c), ou combat(f) au coordonnées posX et posY
- * 
- * @param l 
+ * @param camp
  * @param type 
+ * @param unite 
+ * @param x 
+ * @param y 
  * @return int 
  */
-int suprimeCellule(UListe* l, char type, int posX, int posY);
+int insereEnTete(UListe* l, char camp, char type, char unite, int x, int y);
+
+/**
+ * @brief extrais de la liste unite(u), colonie(c), ou combat(f) au coordonnées posX et posY
+ * 
+ * @param l 
+ * @param unite 
+ * @param posX 
+ * @param posY 
+ * @return UListe 
+ */
+UListe extraitCellule(UListe* l, char unite, int posX, int posY);
 
 /**
  * @brief libere les liste unite, colonie, et combat

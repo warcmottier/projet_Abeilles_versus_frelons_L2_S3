@@ -2,67 +2,110 @@
 
 Unite* alloueCellule(char camp, char type,int x,int y){
   Unite* ruche = malloc(sizeof(Unite));
+  
   if (!ruche) {
     return NULL;
   }
-  int force;
+
   switch(type){
     case 'r':
-      force = FREINE;
+      ruche->force = FREINE;
       break;
+
     case 'o':
-      force = FOUVRIERE;
+      ruche->force = FOUVRIERE;
       break;
+
     case 'e':
-      force = FESCADRON;
+      ruche->force = FESCADRON;
       break;
+
     case 'g':
-      force = FGUERRIERE;
+      ruche->force = FGUERRIERE;
       break;
+
     case 'f':
-      force = FFRELON;
+      ruche->force = FFRELON;
       break;
+
     default :
-      force = 0;
+      ruche->force = 0;
       break;
   }
-  (*ruche).camp = camp; (*ruche).type = type; (*roche).force = force;
-  (*ruche).x = x; (*ruche).y = y;
+
+  ruche->camp = camp; ruche->type = type;
+
+  ruche->posx = x; ruche->posy = y;
+
+  ruche->uprec = NULL;
+  ruche->usuiv = NULL;
+  ruche->vprec = NULL;
+  ruche->vsuiv = NULL;
+  ruche->colprec = NULL;
+  ruche->colsuiv = NULL;
+
   return ruche;
 }
 
 int rechercheDispo(UListe l, int* x, int* y){
+  UListe depart = l;
   for (int i = -1; i< 2; i++){
     for (int j = -1; j< 2; j++){
-      Uliste* depart = &l;
+      
       do{
-        if (l.x != x+i && l.y != y+j){
-          *x = x+i; *y= y+j;
+
+        if (l->posx != *x+i && l->posy != *y+j){
+          *x = *x+i; *y= *y+j;
           return 1;
         }
+
         l = (*l).usuiv;
-      } while(&l != depart)
-    }
+        
+      } while(l != depart);
+    
+    } 
   }
   return 0;
 }
 
-int insereEnTete(UListe* l, char type, int x, int y){
+int insereEnTete(UListe* l, char camp, char type, char unite, int x, int y){
   int x_val = x; int y_val = y;
-  if (rechercheDispo(l,&x_val,&y_val) != 0){
-    Unite* tete = alloueCellule((**l).camp,type,x_val,y_val);
-  }
+
+  /*if (rechercheDispo(*l,&x_val,&y_val) == 0){
+    return 0;
+  }*/
+
+  UListe tete = alloueCellule(camp, type, x_val, y_val);
+
   if(!tete){
     return 0;
   }
-  (**tete).uprec = (**l).uprec; (**tete).colprec = (**l).colprec;
-  (**l).uprec = *tete; (**l).colprec = *tete;
-  (**tete).usuiv = *l; (**tete).colsuiv = *l;
+
+  if(*l == NULL){
+    *l = tete;
+    return 1;
+  }
+  
+
+  if(unite == 'u'){
+    tete->usuiv = *l;
+    (*l)->uprec = tete;
+  
+    *l = tete;
+  }
+
+  if(unite == 'c'){
+    tete->colsuiv = *l;
+    (*l)->colprec = tete;
+    *l = tete;
+  }
+
   return 1;
 }
 
-int suprimeCellule(UListe* l, char type, int posX, int posY){
+UListe extraitCellule(UListe* l, char unite, int posX, int posY){
   
+
 }
 
 void libereListe(UListe* l){
