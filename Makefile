@@ -1,4 +1,4 @@
-CC = clang
+CC = gcc
 CFLAGS =-std=c17 -pedantic -Wall
 LDFLAGS = -lMLV
 OBJ = fichier.o game.o abeille.o frelon.o graph.o liste.o main.o

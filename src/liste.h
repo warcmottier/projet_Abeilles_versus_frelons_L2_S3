@@ -83,24 +83,28 @@ int ressourcesAbeille, ressourcesFrelon;
  * @param camp 
  * @param type 
  * @param force
- * @param x
- * @param y
  * @return Unite* 
  */
-Unite* alloueCellule(char camp, char type, int x, int y);
+Unite* alloueCellule(char camp, char type);
 
 /**
- * @brief insere en tête de la liste unite(u), colonie(c) et renvoie 1 si réussi 0 sinon
+ * @brief initialise la liste en debut de partie
+ * 
+ * @param camp 
+ * @return UListe 
+ */
+UListe initListe(char camp);
+
+/**
+ * @brief insere en tête de la liste
  * 
  * @param l 
+ * @param reine
  * @param camp
  * @param type 
- * @param unite 
- * @param x 
- * @param y 
  * @return int 
  */
-int insereEnTete(UListe* l, char camp, char type, char unite, int x, int y);
+int inserer(UListe* l, UListe* reine, char camp, char type);
 
 /**
  * @brief extrais de la liste unite(u), colonie(c), ou combat(f) au coordonnées posX et posY
