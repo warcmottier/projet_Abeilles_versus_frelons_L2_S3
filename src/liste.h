@@ -101,21 +101,28 @@ UListe initListe(char camp);
  * @param l 
  * @param reine
  * @param camp
- * @param type 
+ * @param type
+ * @param x
+ * @param y 
  * @return int 
  */
-int inserer(UListe* l, UListe* reine, char camp, char type);
+int inserer(UListe* l, UListe* reine, char camp, char type, int x, int y);
 
 /**
- * @brief extrais de la liste unite(u), colonie(c), ou combat(f) au coordonnées posX et posY
+ * @brief suprime la cellule d'adresse l;
  * 
  * @param l 
- * @param unite 
- * @param posX 
- * @param posY 
  * @return UListe 
  */
-UListe extraitCellule(UListe* l, char unite, int posX, int posY);
+void suprimeCellule(UListe* l);
+
+/**
+ * @brief extrait la cellule l de la liste ne peut pas extraire une ruche ou un nid
+ * 
+ * @param l 
+ * @return UListe 
+ */
+UListe extraitCellule(UListe* l);
 
 /**
  * @brief libere les liste unite, colonie, et combat

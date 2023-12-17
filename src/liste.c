@@ -2,7 +2,7 @@
 
 Unite* alloueCellule(char camp, char type){
   Unite* ruche = malloc(sizeof(Unite));
-  
+
   if (!ruche) {
     return NULL;
   }
@@ -130,23 +130,6 @@ UListe initListe(char camp){
     l->posy = 0;
     l->force = FGUERRIERE;
 
-    //la premiere escadron
-    tmp = alloueCellule(camp, ESCADRON);
-
-    if(!tmp){
-      l = debut;
-      return l;
-    }
-
-    l->usuiv = tmp;
-    tmp->uprec = l;
-
-    l = l->usuiv;
-
-    l->posx = 0;
-    l->posy = 1;
-    l->force = FESCADRON;
-
     l = debut;
   }
 
@@ -205,45 +188,41 @@ UListe initListe(char camp){
     l->posx = 10;
     l->posy = 17;
     l->force = FFRELON;
+    
+    //deuxieme frelon
+    tmp = alloueCellule(camp, FRELONS);
+
+    if(!tmp){
+      l = debut;
+      return l;
+    }
+
+    l->usuiv = tmp;
+    tmp->uprec = l;
+    l = l->usuiv;
+
+    l->posx = 10;
+    l->posy = 16;
+    l->force = FFRELON;
 
     l = debut;
+
   }
   
   return l;
 }
 
-/* marche pas
 
-int rechercheDispo(UListe l, int* x, int* y){
-  for (int i = -1; i< 2; i++){
-    for (int j = -1; j< 2; j++){
-      
-      do{
-
-        if (l->posx != *x+i && l->posy != *y+j){
-          *x = *x+i; *y= *y+j;
-          return 1;
-        }
-
-        l = (*l).usuiv;
-        
-      } while(l != NULL);
-    
-    } 
-  }
-  return 0;
-}
-*/
-
-int inserer(UListe* l, UListe* reine, char camp, char type){
+int inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
   UListe tmp, debut;
-  int x, y; 
 
   tmp = alloueCellule(camp, type);  
   
   if(!tmp)
     return 0; 
   
+  tmp->posx = x;
+  tmp->posy = y;
   debut = *l; 
   
   if((*l)->type != RUCHE || (*l)->type != NID){
@@ -252,11 +231,6 @@ int inserer(UListe* l, UListe* reine, char camp, char type){
   
   
   if(type != RUCHE){
-
-    x = (*l)->posx;
-    y = (*l)->posy;
-
-    //trouver la case vide la plus proche possible de la ruche (a du mal)
   
     for(; (*l)->type != type && (*l)->usuiv != NULL; *l = (*l)->usuiv); 
   
@@ -267,6 +241,7 @@ int inserer(UListe* l, UListe* reine, char camp, char type){
   
     else{
       tmp->usuiv = (*l)->usuiv;
+      (*l)->usuiv->uprec = tmp;
       tmp->uprec = *l;
       (*l)->usuiv = tmp;
     }
@@ -289,4 +264,122 @@ int inserer(UListe* l, UListe* reine, char camp, char type){
   *l = debut; 
   
   return 1;
+}
+
+/**
+ * @brief supprime la colonie dont l'adresse de la ruche ou du nid est l
+ * 
+ * @param l 
+ */
+void suprimeColonie(UListe* l){
+  UListe tmp;
+  
+  //allez au fon de la colonie que l'on veut effacer
+  for(; (*l)->usuiv != NULL; *l = (*l)->usuiv);
+
+  //effacer un a un les cellule de la colonie a effacer
+  while((*l)->type != RUCHE && (*l)->type != NID){
+    tmp = *l;
+    *l = (*l)->uprec;
+    free(tmp);
+  }
+
+  //effacer la ruche ou le nid de la colonie
+  tmp = *l;
+
+  if((*l)->colprec == NULL){
+    *l = (*l)->uprec;
+    (*l)->usuiv = tmp->colsuiv;
+    
+  }
+  else{
+    
+    *l = tmp->colprec;
+    
+    (*l)->colsuiv = tmp->colsuiv;
+    
+    if(tmp->colsuiv != NULL)
+      tmp->colsuiv->colprec = *l;
+
+  }
+
+  free(tmp);
+
+}
+
+void suprimeCellule(UListe* l){
+  UListe tmp;
+  // si il faut supprimer une ruche ou un nid on supprime toute la colonie
+  if((*l)->type == RUCHE || (*l)->type == NID)
+    suprimeColonie(l);
+  
+  else{
+    tmp = *l;
+    
+    //si on est a la fin de la liste
+    if((*l)->usuiv == NULL){
+      *l = (*l)->uprec;
+      (*l)->usuiv = NULL;
+    }
+
+    else{
+      (*l) = (*l)->uprec;
+      (*l)->usuiv = tmp->usuiv;
+      tmp->usuiv->uprec = *l;
+    }
+      
+    free(tmp);
+  }
+}
+
+UListe extraitCellule(UListe* l){
+  UListe tmp;
+    tmp = *l;
+  
+    //si on est a la fin de la liste
+    if((*l)->usuiv == NULL){
+      *l = (*l)->uprec;
+      (*l)->usuiv = NULL;
+    }
+
+    else{
+      (*l) = (*l)->uprec;
+      (*l)->usuiv = tmp->usuiv;
+      tmp->usuiv->uprec = *l;
+    }
+
+    tmp->uprec = NULL;
+    tmp->usuiv= NULL;
+      
+    return tmp;
+}
+
+void libereListe(UListe* l){
+  UListe tmp;
+  
+  if(*l == NULL)
+    return;
+
+  //effacer la tete de la structure
+  if((*l)->type == 0){
+    tmp = *l;
+    *l = (*l)->usuiv;
+    (*l)->uprec = NULL;
+    free(tmp);
+  }
+  
+  // aller a la dernier colonie;
+  libereListe(&(*l)->colsuiv);
+
+  
+  for(; (*l)->usuiv != NULL; *l = (*l)->usuiv);//printf("coucou\n");
+
+  //effacer un a un les cellule de la colonie a effacer
+  while((*l)->uprec != NULL){
+    tmp = *l;
+    *l = (*l)->uprec;
+    free(tmp);
+  }
+
+  free(*l);
 }
