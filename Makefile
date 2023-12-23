@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS =-std=c17 -pedantic -Wall
 LDFLAGS = -lMLV
-OBJ = fichier.o game.o abeille.o frelon.o graph.o liste.o main.o
+OBJ = fichier.o game.o unite.o graph.o liste.o main.o
 EXE = AVSF
 REG = src/
 
@@ -10,17 +10,15 @@ $(EXE): $(OBJ)
 	
 main.o: $(REG)main.c $(REG)game.h
 
-abeille.o: $(REG)abeille.c $(REG)abeille.h $(REG)liste.h
-
-frelon.o: $(REG)frelon.c $(REG)frelon.h $(REG)liste.h
+unite.o: $(REG)unite.c $(REG)unite.h $(REG)liste.h
 
 liste.o: $(REG)liste.c $(REG)liste.h
 
 graph.o: $(REG)graph.c $(REG)graph.h $(REG)liste.h
 
-fichier.o: $(REG)fichier.c $(REG)fichier.h $(REG)abeille.h $(REG)frelon.h
+fichier.o: $(REG)fichier.c $(REG)fichier.h $(REG)unite.h
 
-game.o: $(REG)game.c $(REG)game.h $(REG)abeille.h $(REG)frelon.h $(REG)graph.h $(REG)fichier.h
+game.o: $(REG)game.c $(REG)game.h $(REG)unite.h $(REG)graph.h $(REG)fichier.h
 
 %.o: $(REG)%.c
 	$(CC) -c $< $(CFLAGS)
