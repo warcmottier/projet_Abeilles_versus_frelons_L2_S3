@@ -3,25 +3,21 @@
 #include "unite.h"
 
 /**
- * @brief ouvre le fichier de sauvegarde et si il existe pas il le crée
+ * @brief charge la sauvegarde et renvoie le prochain joueur
  * 
- * @param nom 
- * @return FILE* 
+ * @param nom
+ * @param g
+ * @return char
  */
-FILE* ouvreFichier(char* nom);
+char charger(char* nom,Grille * g);
 
 /**
- * @brief charge la sauvegarde
+ * @brief sauvegarde la partie
  * 
- * @param f 
+ * @param nom
+ * @param g
+ * @param camp
  */
-void charger(FILE* f);
-
-/**
- * @brief sauvegarde la partie (a ajouter les argument que l'on aura besoin dans le prototype)
- * 
- * @param f 
- */
-void sauvegarder(FILE* f);
+void sauvegarder(char* nom, Grille g, char camp);
 
 #endif
