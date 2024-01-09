@@ -1,236 +1,159 @@
 #include "fichier.h"
 
-UListe inserer_charg(UListe* l, UListe* reine, char camp, char type, int x, int y){
-  UListe tmp, debut;
-
-  tmp = alloueCellule(camp, type);  
-  
-  if(!tmp)
-    return NULL; 
-  
-  tmp->destx = x;
-  tmp->desty = y;
-  debut = *l;
-  
-  // si la cellule n'est pas une ruche on l'insere avec les autre cellule de sont type
-  if(type != RUCHE && type != NID){
-  
-    for(; (*l)->type != type && (*l)->usuiv != NULL; *l = (*l)->usuiv); 
-  
-    if((*l)->usuiv == NULL){
-      tmp->uprec = *l;
-      (*l)->usuiv = tmp;
-    } 
-  
-    else{
-      tmp->usuiv = (*l)->usuiv;
-      (*l)->usuiv->uprec = tmp;
-      tmp->uprec = *l;
-      (*l)->usuiv = tmp;
+void GrilleVide(Grille* g){
+    g->abeille = NULL;
+    g->frelon = NULL;
+    g->ressourcesAbeille = 0;
+    g->ressourcesFrelon = 0;
+    g->tour = 0;
+    
+    for(int i = 0; i < LIGNES; i++){
+        for(int j = 0; j < COLONNES; j++){
+            g->plateau[i][j].colonie = 0;
+            g->plateau[i][j].occupant = 0;
+        }
     }
-  } 
-  
-  //si c'est une ruche ou un nid on cree une nouvelle colonie avec sa reine
-  else{
-  
-    for(; (*l)->colsuiv != NULL; *l = (*l)->colsuiv); 
-  
-    tmp->colprec = *l;
-    (*l)->colsuiv = tmp;
-
-    *l = (*l)->colsuiv;
-
-    (*reine)->uprec = *l;
-    (*reine)->usuiv = NULL;
-    (*l)->usuiv = *reine;
-  } 
-  
-  *l = debut;
-  
-  return tmp;
 }
 
 char charger(char* nom, Grille * g){
-  FILE * sesame;
-  char joueur,camp,type,prod;
-  int tank,nb_ligne = 0,compteur_char = 0,x,y,tours_restant,taille_int1 = 0,taille_int2=0,tmp;
-  sesame = fopen(*nom,"r");
-  if (sesame == NULL){
-    //la sauvegarde n'existe pas
-    return NULL;
-  } else {
-    while((tank = fgetc(sesame))!=EOF){
-        //pour savoir sur quel caractère de la ligne nous sommes
-        if (tank == '\n'){
-            compteur_char = 0;
-            nb_ligne ++;
-        } else {
-            compteur_char ++;
-        }
-        //si on est sur la première ligne
-        if (nb_ligne == 0){
-            if (tank != ' '){
-                if (compteur_char == 1){
-                    joueur = tank;
-                }
-                if (compteur_char == 3){
-                    do{
-                        if (taille_int1>0){
-                            tmp = tmp*10 + tank-'0';
-                            taille_int1++;
-                        } else {
-                            tmp = tank - '0';
-                            taille_int1++;
-                        } 
-                        tank = fgetc(sesame);
-                        compteur_char++;
-                    } while (tank!= ' ' || tank != '\n');
-                }
-                switch (joueur){
-                    case ABEILLE :
-                        (*g).ressourcesAbeille = tmp;
-                        break;
-                    case FRELON :
-                        (*g).ressourcesFrelon = tmp;
-                        break;   
-                }
-                if (compteur_char == 5+taille_int1+1){//la position du chiffre précédent, la taille du chiffre et un espace
-                    taille_int1 = 0;
-                    do{
-                        if (taille_int2>0){
-                            tmp = tmp*10 + tank-'0';
-                            taille_int2++;
-                        } else {
-                            tmp = tank - '0';
-                            taille_int2++;
-                        } 
-                        tank = fgetc(sesame);
-                        compteur_char++;
-                    } while (tank!= ' ' || tank != '\n');
-                } 
-                switch (joueur){
-                    case ABEILLE :
-                        (*g).ressourcesFrelon = tmp;    
-                    case FRELON :
-                        (*g).ressourcesAbeille = tmp;
-                }
-            }
-        } else { //le reste du fichier de sauvegarde
-            if (compteur_char == 0 && nb_ligne > 2){
-                switch (camp){
-                    case ABEILLE:
-                        if(inserer(&(*g).abeille,NULL,camp,type,x,y) == NULL){
-                            fprintf(stderr,"plus de mémoire");
-                            return NULL;
-                        } else {
-                            (*g).abeille;
-                        }
-                    case FRELON:
-                        if(inserer(&(*g).frelon,NULL,camp,type,x,y) == NULL){
-                            fprintf(stderr,"plus de mémoire");
-                            return NULL;
-                        }
-                }
-            } else if (compteur_char == 1){
-                camp = tank;
-            } else if (compteur_char == 3){
-                type = tank;
-            } else if (compteur_char == 5){
-                do{
-                    if (taille_int1>0){
-                        tmp = tmp*10 + tank-'0';
-                        taille_int1++;
-                    } else {
-                        tmp = tank - '0';
-                        taille_int1++;
-                    } 
-                    tank = fgetc(sesame);
-                    compteur_char++;
-                } while (tank!= ' ' || tank != '\n');
-                x = tmp;
-            } else if (compteur_char == 5 + taille_int1 + 1) {
-                do{
-                    if (taille_int2>0){
-                        tmp = tmp*10 + tank-'0';
-                        taille_int2++;
-                    } else {
-                        tmp = tank - '0';
-                        taille_int2++;
-                    } 
-                    tank = fgetc(sesame);
-                    compteur_char++;
-                } while (tank!= ' ' || tank != '\n');
-                y = tmp;
-            } else if (compteur_char == 5 +taille_int1 + 1 +taille_int2 +1){
-                prod = tank;
-            } else if (compteur_char == 5 + taille_int1 + 1 + taille_int2 +3){
-                taille_int1 = 0;
-                do{
-                    if (taille_int1>0){
-                        tmp = tmp*10 + tank-'0';
-                    } else {
-                        tmp = tank - '0';
-                        taille_int1++;
-                    } 
-                    tank = fgetc(sesame);
-                    compteur_char++;
-                } while (tank!= ' ' || tank != '\n');
-                tours_restant = tmp;
-            }
-                
-            switch(compteur_char){
-                case 1:
-                    camp = tank;
-                case 3:
-                    type = tank;
-                case 5:
-                    x = tank-'0';
-                case 7:
-                    y = tank-'0';
-                case 9:
-                    prod = tank;
-                case 11:
-                    tours_restant = tank-'0';
-            }
-        }
+    FILE * sesame;
+    UListe new;
+    char camp, type, prod, joueur;
+    int ressource1, ressource2, x, y, toureres;
+
+    GrilleVide(g);
+  
+    sesame = fopen(nom,"r");
+    if (sesame == NULL){
+        //la sauvegarde n'existe pas
+        return 0;
     }
+
+    g->abeille = NULL;
+    g->frelon = NULL;
+
+    fscanf(sesame, "%c %d %d\n", &camp, &ressource1, &ressource2);
+
+    joueur = camp;
+
+    if(camp == ABEILLE){
+        g->ressourcesAbeille = ressource1;
+        g->ressourcesFrelon = ressource2;
+    }
+
+    else{
+        g->ressourcesFrelon = ressource1;
+        g->ressourcesAbeille = ressource2;
+    }
+
+    while( fscanf(sesame, "%c %c %d %d %c %d\n", &camp, &type, &x, &y, &prod, &toureres) != EOF){
+        if(camp == ABEILLE){
+            new = inserer(&g->abeille, NULL, camp, type, x, y);
+        }
+
+        else{
+            new = inserer(&g->frelon, NULL, camp, type, x, y);
+        }
+
+        new->posx = x;
+        new->posy = y;
+
+        new->production = prod;
+        new->toursrestant = toureres;
+
+        switch(prod){
+            case REINE:
+                new->temps = TREINEA;
+                break;
+
+            case OUVRIERE:
+                new->temps = TOUVRIERE;
+                break;
+
+            case ESCADRON:
+                new->temps = TESCADRON;
+                break;
+
+            case GUERRIERE:
+                new->temps = TGUERRIERE;
+                break;
+
+            case FRELONS:
+                new->temps = TFRELON;
+                break;
+            
+            case RECOLTE:
+                new->temps = TRECOLTE;
+
+            default :
+                break;
+        }
+
+        if(new->colsuiv != NULL && new->type == RUCHE)
+            g->abeille = g->abeille->colsuiv;
+        
+        if(new->colsuiv != NULL && new->type == NID)
+            g->frelon = g->frelon->colsuiv;
+
+        if(type != RUCHE && type != NID)
+            deplacement(&new, &g->plateau[new->posy][new->posx], NULL);
+        
+        else
+            g->plateau[new->posy][new->posx].colonie = new;
+    }
+
+    for(; g->abeille->colprec != NULL; g->abeille = g->abeille->colprec);
+    for(; g->frelon->colprec != NULL; g->frelon = g->frelon->colprec);
+
+    fclose(sesame);
     
-  }
-  fclose(sesame);
+    return joueur;
 }
 
 void sauvegarder(char* nom, Grille g,char camp){
     FILE * sesame;
+    UListe ruche;
+    int ressource_joueur,ressource_ennemi;
+
     // ouverture en w car cela évite les problèmes si le fichier n'existe pas
     sesame = fopen(nom,"w");
-    int ressource_joueur,ressource_ennemi;
+    if(!sesame)
+        return;
+
     //switch pour avoir un seul fprintf
-    switch (camp)
-    {
-    case ABEILLE:
-        ressource_joueur = g.ressourcesAbeille;
-        ressource_ennemi = g.ressourcesFrelon;
-    case FRELON:
-        ressource_joueur = g.ressourcesFrelon;
-        ressource_ennemi = g.ressourcesAbeille;        
+    switch (camp){
+
+        case ABEILLE:
+            ressource_joueur = g.ressourcesAbeille;
+            ressource_ennemi = g.ressourcesFrelon;
+        case FRELON:
+            ressource_joueur = g.ressourcesFrelon;
+            ressource_ennemi = g.ressourcesAbeille;        
     }
-    fprintf(sesame, "%s %d %d\n",camp,ressource_joueur,ressource_ennemi);
+    
+    fprintf(sesame, "%c %d %d\n",camp,ressource_joueur,ressource_ennemi);
+    
     //parcours des unités pour les abeilles
-    UListe ruche;
     for(; g.abeille != NULL; g.abeille = g.abeille->colsuiv){
         ruche = g.abeille;
+        
         for(;g.abeille != NULL; g.abeille = g.abeille->usuiv){
             fprintf(sesame,"%c %c %d %d %c %d\n",g.abeille->camp,g.abeille->type,g.abeille->posx,g.abeille->posy,g.abeille->production,g.abeille->toursrestant);
         }
+        
         g.abeille = ruche;
     }
+    
     //parcours des unités pour les frelons
     for(; g.frelon != NULL; g.frelon = g.frelon->colsuiv){
         ruche = g.frelon;
+        
         for(;g.frelon != NULL; g.frelon = g.frelon->usuiv){
             fprintf(sesame,"%c %c %d %d %c %d\n",g.frelon->camp,g.frelon->type,g.frelon->posx,g.frelon->posy,g.frelon->production,g.frelon->toursrestant);
         }
+        
         g.frelon = ruche;
     }
+    
     fclose(sesame);
 }

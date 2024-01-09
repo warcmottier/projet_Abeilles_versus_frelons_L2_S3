@@ -6,16 +6,18 @@
  * @brief vérifie si il y a deja des occupant sur la case si oui alors il fais le chainage necessaire et fait bouger l'unite a la case voulue
  * 
  * @param unite 
- * @param cases
+ * @param casesFuture
+ * @param casesActuelle
  * @return int
  */
-int deplacement(UListe* unite, UListe* cases);
+int deplacement(UListe* unite, Case* casesFuture, Case* casesActuelle);
 
 /**
  * @brief la reine fonde une colonie et la met dans la case ou elle se trouve
  *  
- * @param cases 
+ * @param cases
+ * @param reine
  */
-void fonderCol(Case* cases);
+void fonderCol(Case* cases, UListe* reine);
 
 #endif

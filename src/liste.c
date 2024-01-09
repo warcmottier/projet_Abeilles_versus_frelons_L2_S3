@@ -8,23 +8,23 @@ Unite* alloueCellule(char camp, char type){
   }
 
   switch(type){
-    case 'r':
+    case REINE:
       ruche->force = FREINE;
       break;
 
-    case 'o':
+    case OUVRIERE:
       ruche->force = FOUVRIERE;
       break;
 
-    case 'e':
+    case ESCADRON:
       ruche->force = FESCADRON;
       break;
 
-    case 'g':
+    case GUERRIERE:
       ruche->force = FGUERRIERE;
       break;
 
-    case 'f':
+    case FRELONS:
       ruche->force = FFRELON;
       break;
 
@@ -54,17 +54,10 @@ Unite* alloueCellule(char camp, char type){
 }
 
 UListe initListe(char camp){
-  UListe l, debut, tmp;
+  UListe l = NULL, debut = NULL, tmp;
 
 
   if(camp == ABEILLE){
-    // la tete
-    l = alloueCellule(camp, 0);
-
-    if(!l)
-      return NULL;
-
-    debut = l;    
     
     //la premiere ruche
     tmp = alloueCellule(camp, RUCHE);
@@ -74,12 +67,11 @@ UListe initListe(char camp){
       return l;
     }
 
-    l->usuiv = tmp;
-    tmp->uprec = l;
-    l = l->usuiv;
-    
+    l = tmp;
     l->posx = 0;
     l->posy = 0;
+
+    debut = l;
 
     //la premiere reine
     tmp = alloueCellule(camp, REINE);
@@ -93,8 +85,8 @@ UListe initListe(char camp){
     tmp->uprec = l;
     l = l->usuiv;
     
-    l->posx = 2;
-    l->posy = 0;
+    l->posx = 1;
+    l->posy = 1;
     l->force = FREINE;
 
     //la premiere ouvriere
@@ -110,7 +102,7 @@ UListe initListe(char camp){
     l = l->usuiv;
 
     l->posx = 1;
-    l->posy = 1;
+    l->posy = 0;
     l->force = FOUVRIERE;
 
     //la premiere guerriere
@@ -126,22 +118,14 @@ UListe initListe(char camp){
     tmp->uprec = l;
     l = l->usuiv;
 
-    l->posx = 1;
-    l->posy = 0;
+    l->posx = 0;
+    l->posy = 1;
     l->force = FGUERRIERE;
 
     l = debut;
   }
 
   else{
-    //la tete
-    l = alloueCellule(camp, 0);
-
-    if(!l){
-      return l;
-    }
-
-    debut = l;
 
     //le premier nid
     tmp = alloueCellule(camp, NID);
@@ -150,12 +134,12 @@ UListe initListe(char camp){
       return NULL;
     }
 
-    l->usuiv = tmp;
-    tmp->uprec = l;
-    l = l->usuiv;
+    l = tmp;
 
     l->posx = 11;
     l->posy = 17;
+
+    debut = l;
 
     //la premiere reine
     tmp = alloueCellule(camp, REINE);
@@ -169,7 +153,7 @@ UListe initListe(char camp){
     tmp->uprec = l;
     l = l->usuiv;
 
-    l->posx = 11;
+    l->posx = 10;
     l->posy = 16;
     l->force = FREINE;
 
@@ -185,8 +169,8 @@ UListe initListe(char camp){
     tmp->uprec = l;
     l = l->usuiv;
 
-    l->posx = 10;
-    l->posy = 17;
+    l->posx = 11;
+    l->posy = 16;
     l->force = FFRELON;
     
     //deuxieme frelon
@@ -202,7 +186,7 @@ UListe initListe(char camp){
     l = l->usuiv;
 
     l->posx = 10;
-    l->posy = 16;
+    l->posy = 17;
     l->force = FFRELON;
 
     l = debut;
@@ -213,24 +197,20 @@ UListe initListe(char camp){
 }
 
 
-int inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
+UListe inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
   UListe tmp, debut;
 
-  tmp = alloueCellule(camp, type);  
-  
+  tmp = alloueCellule(camp, type);
+
   if(!tmp)
-    return 0; 
+    return NULL; 
   
-  tmp->posx = x;
-  tmp->posy = y;
-  debut = *l; 
-  
-  if((*l)->type != RUCHE || (*l)->type != NID){
-    *l = (*l)->usuiv;
-  } 
-  
-  
-  if(type != RUCHE){
+  tmp->destx = x;
+  tmp->desty = y;
+  debut = *l;
+
+  // si la cellule n'est pas une ruche on l'insere avec les autre cellule de sont type
+  if(type != RUCHE && type != NID){
   
     for(; (*l)->type != type && (*l)->usuiv != NULL; *l = (*l)->usuiv); 
   
@@ -247,8 +227,19 @@ int inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
     }
   } 
   
+  //si c'est une ruche ou un nid on cree une nouvelle colonie avec sa reine
   else{
-  
+
+    tmp->posx = x;
+    tmp->posy = y;
+    tmp->destx = -1;
+    tmp->desty = -1;
+
+    if(*l == NULL){
+      *l = tmp;
+      return tmp;
+    }
+
     for(; (*l)->colsuiv != NULL; *l = (*l)->colsuiv); 
   
     tmp->colprec = *l;
@@ -261,9 +252,9 @@ int inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
     (*l)->usuiv = *reine;
   } 
   
-  *l = debut; 
+  *l = debut;
   
-  return 1;
+  return tmp;
 }
 
 /**
@@ -288,20 +279,24 @@ void suprimeColonie(UListe* l){
   tmp = *l;
 
   if((*l)->colprec == NULL){
-    *l = (*l)->uprec;
-    (*l)->usuiv = tmp->colsuiv;
-    
+    *l = tmp->colsuiv;
+    (*l)->colprec = NULL;
   }
+  
   else{
     
     *l = tmp->colprec;
     
     (*l)->colsuiv = tmp->colsuiv;
     
-    if(tmp->colsuiv != NULL)
+    if(tmp->colsuiv != NULL){
       tmp->colsuiv->colprec = *l;
+    }
 
   }
+
+  tmp->colprec = NULL;
+  tmp->colsuiv = NULL;
 
   free(tmp);
 
@@ -310,8 +305,9 @@ void suprimeColonie(UListe* l){
 void suprimeCellule(UListe* l){
   UListe tmp;
   // si il faut supprimer une ruche ou un nid on supprime toute la colonie
-  if((*l)->type == RUCHE || (*l)->type == NID)
+  if((*l)->type == RUCHE || (*l)->type == NID){
     suprimeColonie(l);
+  }
   
   else{
     tmp = *l;
@@ -359,20 +355,12 @@ void libereListe(UListe* l){
   
   if(*l == NULL)
     return;
-
-  //effacer la tete de la structure
-  if((*l)->type == 0){
-    tmp = *l;
-    *l = (*l)->usuiv;
-    (*l)->uprec = NULL;
-    free(tmp);
-  }
   
   // aller a la dernier colonie;
   libereListe(&(*l)->colsuiv);
 
-  
-  for(; (*l)->usuiv != NULL; *l = (*l)->usuiv);//printf("coucou\n");
+  // aller a la fin de la colonie
+  for(; (*l)->usuiv != NULL; *l = (*l)->usuiv);
 
   //effacer un a un les cellule de la colonie a effacer
   while((*l)->uprec != NULL){

@@ -22,7 +22,7 @@
 // Pour la recolte de pollen
 #define RECOLTE 'p'
 
-// Les temps necessaires a la production :
+/// Les temps necessaires a la production :
 #define TREINEA 8
 #define TREINEF 8
 #define TOUVRIERE 2
@@ -96,7 +96,7 @@ Unite* alloueCellule(char camp, char type);
 UListe initListe(char camp);
 
 /**
- * @brief insere en tête de la liste
+ * @brief insere dans la liste
  * 
  * @param l 
  * @param reine
@@ -104,9 +104,9 @@ UListe initListe(char camp);
  * @param type
  * @param x
  * @param y 
- * @return int 
+ * @return UListe 
  */
-int inserer(UListe* l, UListe* reine, char camp, char type, int x, int y);
+UListe inserer(UListe* l, UListe* reine, char camp, char type, int x, int y);
 
 /**
  * @brief suprime la cellule d'adresse l;

@@ -1,65 +1,209 @@
 #include "unite.h"
 
-int deplacement(UListe* unite, UListe* cases){
-    UListe debut = *cases;
+
+/**
+ * @brief insere l'unite dans la 3eme liste chaine dans l'ordre des combat 
+ * 
+ * @param cases 
+ * @param unite 
+ */
+void insererOrdre(Case* cases, UListe* unite){
+    UListe debut = cases->occupant;
+
+    if(cases->occupant == NULL){
+        cases->occupant = *unite;
+        cases->occupant->vsuiv = NULL;
+        cases->occupant->vprec = NULL;
+        return;
+    }
+
+    if((*unite)->camp == ABEILLE){
+        
+        //si l'unite est un escadron
+        if((*unite)->type == ESCADRON){
+            cases->occupant->vprec = *unite;
+            (*unite)->vsuiv = cases->occupant;
+            cases->occupant = *unite;
+            return;
+        }
+        
+        for(; cases->occupant->vsuiv != NULL && cases->occupant->type != ESCADRON; cases->occupant = cases->occupant->vsuiv);
+        
+        //si l'unite est une guerriere
+        if((*unite)->type == GUERRIERE){
+
+            if(cases->occupant->vsuiv == NULL){
+                cases->occupant->vsuiv = *unite;
+                (*unite)->vprec = cases->occupant;
+            }
+
+            else{
+                (*unite)->vprec = cases->occupant->vprec;
+                cases->occupant->vprec = *unite;
+                (*unite)->vsuiv = cases->occupant;
+                (*unite)->vprec->vsuiv = *unite;
+            }
+
+            cases->occupant = debut;
+            return;
+        }
+
+        for(; cases->occupant->vsuiv != NULL && cases->occupant->type != GUERRIERE; cases->occupant = cases->occupant->vsuiv);
+
+        //si l'unite est une reine
+
+        if((*unite)->type == REINE){
+            if(cases->occupant->vsuiv == NULL){
+                cases->occupant->vsuiv = *unite;
+                (*unite)->vprec = cases->occupant;
+            }
+
+            else{
+                (*unite)->vprec = cases->occupant->vprec;
+                cases->occupant->vprec = *unite;
+                (*unite)->vsuiv = cases->occupant;
+                (*unite)->vprec->vsuiv = *unite;
+            }
+
+            cases->occupant = debut;
+            return;
+        }
+
+        for(; cases->occupant->vsuiv != NULL && cases->occupant->type != REINE; cases->occupant = cases->occupant->vsuiv);
+
+        //si l'unite est une ouvriere
+
+        if(cases->occupant->vsuiv == NULL){
+            cases->occupant->vsuiv = *unite;
+            (*unite)->vprec = cases->occupant;
+        }
+
+        else{
+            (*unite)->vprec = cases->occupant->vprec;
+            cases->occupant->vprec = *unite;
+            (*unite)->vsuiv = cases->occupant;
+            (*unite)->vprec->vsuiv = *unite;
+        }
+    }
+
+    else{
+
+        //si l'unite est un frelon
+        if((*unite)->type == FRELONS){
+            cases->occupant->vprec = *unite;
+            (*unite)->vsuiv = cases->occupant;
+            cases->occupant = *unite;
+            return;
+        }
+
+        for(; cases->occupant->vsuiv != NULL && cases->occupant->type != FRELONS; cases->occupant = cases->occupant->vsuiv);
+
+        //si l'unite est une reine
+
+        if(cases->occupant->vsuiv == NULL){
+            cases->occupant->vsuiv = *unite;
+            (*unite)->vprec = cases->occupant;
+        }
+
+        else{
+            (*unite)->vprec = cases->occupant->vprec;
+            cases->occupant->vprec = *unite;
+            (*unite)->vsuiv = cases->occupant;
+            (*unite)->vprec->vsuiv = *unite;
+        }
+    }
+
+    cases->occupant = debut;
+}
+
+void rechainerCaseActuelle(Case* casesActuelle, UListe *unite){
+    UListe debut = casesActuelle->occupant;
+
+    if(casesActuelle->occupant->vsuiv == NULL && casesActuelle->occupant->vprec == NULL){
+        casesActuelle->occupant = NULL;
+        return;
+    }
+
+    for(; casesActuelle->occupant != *unite; casesActuelle->occupant = casesActuelle->occupant->vsuiv);
+
+    if(casesActuelle->occupant->vprec == NULL){
+        casesActuelle->occupant = (*unite)->vsuiv;
+        casesActuelle->occupant->vprec = NULL;
+    }
     
-    // si la case est NULL on deplace l'unite dans la case
-    if( *cases == NULL){
+    else if(casesActuelle->occupant->vsuiv == NULL){
+        casesActuelle->occupant = (*unite)->vprec;
+        casesActuelle->occupant->vsuiv = NULL;
+        casesActuelle->occupant = debut;
+    }
+
+    else{
+        casesActuelle->occupant->vprec->vsuiv = (*unite)->vsuiv;
+        casesActuelle->occupant->vsuiv->vprec = (*unite)->vprec;
+        casesActuelle->occupant = debut;
+    }
+
+    (*unite)->vprec = NULL;
+    (*unite)->vsuiv = NULL;
+}
+
+int deplacement(UListe* unite, Case* casesFuture, Case* casesActuelle){
+    // si la case est NULL on deplace l'unite dans la cas
+
+    if( casesFuture->colonie == NULL && casesFuture->occupant == NULL){
+        if(casesActuelle != NULL)
+            rechainerCaseActuelle(casesActuelle, unite);
+
         (*unite)->posx = (*unite)->destx;
         (*unite)->posy = (*unite)->desty;
         (*unite)->destx = -1;
         (*unite)->desty = -1;
 
-        *cases = *unite;
-        (*cases)->vprec = NULL;
-        (*cases)->vsuiv = NULL;
-        
+        casesFuture->occupant = *unite;
+        casesFuture->occupant->vprec = NULL;
+        casesFuture->occupant->vsuiv = NULL;
+
         return 1;
     }
 
+
     // si la case est pas vide et il y a deja une unite d'un autre camp sur la case on ne l'avance pas et on gerra le combat plus tard dans la boucle principale
-    if((*cases)->camp != (*unite)->camp){
+    if((casesFuture->occupant != NULL && casesFuture->occupant->camp != (*unite)->camp) || (casesFuture->colonie != NULL && casesFuture->colonie->camp != (*unite)->camp)){
         return 0;
     }
     
+
     //on bouge l'unite sur la case deja occuper et on fais un chainage sur la 3eme liste chaine
-    for(; (*cases)->vsuiv != NULL && (*unite)->type != (*cases)->type; *cases = (*cases)->vsuiv);
-
-    if((*cases)->vsuiv == NULL){
-        (*unite)->vprec = (*cases);
-        (*cases)->vsuiv = *unite;
-        return 1;
-    }
-
-    (*unite)->vsuiv = (*cases)->vsuiv;
-    (*cases)->vsuiv->vprec = *unite;
-    (*unite)->vprec = (*cases);
-    (*cases)->vsuiv = *unite;
-
-    (*cases) = debut;
-
+    if(casesActuelle != NULL)
+        rechainerCaseActuelle(casesActuelle, unite);
+    
     (*unite)->posx = (*unite)->destx;
     (*unite)->posy = (*unite)->desty;
+    (*unite)->destx = -1;
+    (*unite)->desty = -1;
+    
+    insererOrdre(casesFuture, unite);
 
     return 1;
 }
 
-void fonderCol(Case* cases){
-    UListe ruche, debut = cases->occupant;
-
+void fonderCol(Case* cases, UListe* unite){
+    UListe ruche, debut = cases->occupant, reine;
     //on trouve la ruche de la liste des unite dans laquelle on se trouve
-    for(; cases->occupant->type != RUCHE; cases->occupant = cases->occupant->uprec);
+    
+    for(; cases->occupant->type != RUCHE && cases->occupant->type != NID; cases->occupant = cases->occupant->uprec);
+    
 
     ruche = cases->occupant;
 
     cases->occupant = debut;
 
     //on extrait l'unite qui va fonder une colonie
-    cases->occupant = extraitCellule(&cases->occupant);
+    reine = extraitCellule(unite);
 
-    inserer(&ruche, &cases->occupant, cases->occupant->camp, ruche->type, cases->occupant->posx, cases->occupant->posy);
+    inserer(&ruche, &reine, cases->occupant->camp, ruche->type, cases->occupant->posx, cases->occupant->posy);
 
     //la nouvelle ruche se trouve sur la case dans la quelle elle se trouve
-    cases->colonie = cases->occupant->uprec;
+    cases->colonie = reine->uprec;
     
 }
