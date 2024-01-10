@@ -47,6 +47,7 @@ char charger(char* nom, Grille * g){
     }
 
     while( fscanf(sesame, "%c %c %d %d %c %d\n", &camp, &type, &x, &y, &prod, &toureres) != EOF){
+
         if(camp == ABEILLE){
             new = inserer(&g->abeille, NULL, camp, type, x, y);
         }
@@ -89,11 +90,14 @@ char charger(char* nom, Grille * g){
                 break;
         }
 
-        if(new->colsuiv != NULL && new->type == RUCHE)
-            g->abeille = g->abeille->colsuiv;
         
-        if(new->colsuiv != NULL && new->type == NID)
+        if(g->abeille != NULL && g->abeille->colsuiv != NULL){
+            g->abeille = g->abeille->colsuiv;
+        }
+
+        if(g->frelon != NULL && g->frelon->colsuiv != NULL)
             g->frelon = g->frelon->colsuiv;
+        
 
         if(type != RUCHE && type != NID)
             deplacement(&new, &g->plateau[new->posy][new->posx], NULL);

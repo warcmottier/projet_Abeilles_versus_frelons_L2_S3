@@ -20,4 +20,12 @@ int deplacement(UListe* unite, Case* casesFuture, Case* casesActuelle);
  */
 void fonderCol(Case* cases, UListe* reine);
 
+/**
+ * @brief rechaine la case actuelle ou unite va disparaitre
+ * 
+ * @param casesActuelle 
+ * @param unite 
+ */
+void rechainerCaseActuelle(Case* casesActuelle, UListe *unite);
+
 #endif

@@ -5,7 +5,7 @@
 #include "graph.h"
 
 /**
- * @brief fais le combat avant de deplacer l'uniter et retourne 1 si l'unite est vivante 0 sinon
+ * @brief fais le combat avant de deplacer l'uniter
  * 
  * @param cases 
  * @param unite

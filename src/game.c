@@ -1,8 +1,26 @@
 #include "game.h"
 
+/**
+ * @brief retire des case les uniote qui vons etre effacer
+ * 
+ * @param col
+ */
+void supprimeCasesColonie(UListe* col, Grille* plateau){
+    UListe debut = *col;
+    
+    for(; *col != NULL; *col = (*col)->usuiv){
+        if((*col)->type == RUCHE || (*col)->type == NID){
+            continue;
+        }
+        rechainerCaseActuelle(&plateau->plateau[(*col)->posx][(*col)->posy], col);
+    }
+    *col = debut;
+}
 
 int combat(Case* cases, UListe* unite, Grille* plateau){
     UListe courant, debut = cases->occupant, ruche = cases->colonie;
+    int fin = 0;
+    
     // on regarde si il y a des occupant
 
     if(cases->occupant != NULL){
@@ -109,20 +127,26 @@ int combat(Case* cases, UListe* unite, Grille* plateau){
             }
 
         }
+        
 
-        suprimeCellule(&cases->colonie);
+        supprimeCasesColonie(&cases->colonie, plateau);
+
+        plateau->abeille = cases->colonie->colsuiv;
+
+        fin  = suprimeCellule(&cases->colonie);
         cases->colonie = NULL;
+
         
-        
-        //si c'est uune reine frelon elle transforme la ruche en un nid de frelon
-        if((*unite)->camp == FRELON && (*unite)->type == REINE){
-            fonderCol(cases, unite);
-        }
     }
 
     deplacement(unite, cases, &plateau->plateau[(*unite)->posy][(*unite)->posx]);
 
-    return 1;
+    //si c'est uune reine frelon elle transforme la ruche en un nid de frelon
+    if((*unite)->camp == FRELON && (*unite)->type == REINE){
+        fonderCol(cases, unite);
+    }
+
+    return fin;
 
 }
 
@@ -256,8 +280,7 @@ void tourAbeille(Grille* plateau){
                         plateau->abeille->desty = y;
 
                         if(deplacement(&plateau->abeille, &plateau->plateau[y][x], &plateau->plateau[plateau->abeille->posy][plateau->abeille->posx]) == 0)
-                            if(combat(&plateau->plateau[y][x], &plateau->abeille, plateau) == 0)
-                                plateau->ressourcesFrelon += 6;
+                            combat(&plateau->plateau[y][x], &plateau->abeille, plateau);
                         
                         x = -1;
                         y = -1;
@@ -280,9 +303,7 @@ void tourAbeille(Grille* plateau){
                         plateau->abeille->desty = y;
                         
                         if(deplacement(&plateau->abeille, &plateau->plateau[y][x], &plateau->plateau[plateau->abeille->posy][plateau->abeille->posx]) == 0){
-                            if(combat(&plateau->plateau[y][x], &plateau->abeille, plateau) == 0){
-                                plateau->ressourcesFrelon += 7;
-                            }
+                            combat(&plateau->plateau[y][x], &plateau->abeille, plateau);
                         }
                         
                         x = -1;
@@ -301,8 +322,7 @@ void tourAbeille(Grille* plateau){
                         plateau->abeille->desty = y;
                         
                         if(deplacement(&plateau->abeille, &plateau->plateau[y][x], &plateau->plateau[plateau->abeille->posy][plateau->abeille->posx]) == 0)
-                            if(combat(&plateau->plateau[y][x], &plateau->abeille, plateau) == 0)
-                                plateau->ressourcesFrelon += 6;
+                            combat(&plateau->plateau[y][x], &plateau->abeille, plateau);
                         
                         x = -1;
                         y = -1;
@@ -333,8 +353,7 @@ void tourAbeille(Grille* plateau){
                         plateau->abeille->destx = x;
                         plateau->abeille->desty = y;      
                         if(deplacement(&plateau->abeille, &plateau->plateau[y][x], &plateau->plateau[plateau->abeille->posy][plateau->abeille->posx]) == 0)
-                            if(combat(&plateau->plateau[y][x], &plateau->abeille, plateau) == 0)
-                                plateau->ressourcesFrelon += 6;
+                            combat(&plateau->plateau[y][x], &plateau->abeille, plateau);
                         
                         x = -1;
                         y = -1;
@@ -432,8 +451,11 @@ void tourFrelon(Grille* plateau){
                     plateau->frelon->desty = y;
 
                     if(deplacement(&plateau->frelon, &plateau->plateau[y][x], &plateau->plateau[plateau->frelon->posy][plateau->frelon->posx]) == 0){
-                        if(combat(&plateau->plateau[y][x], &plateau->frelon, plateau) == 1)
-                            plateau->ressourcesFrelon += 6;
+                        if(combat(&plateau->plateau[y][x], &plateau->frelon, plateau) == 1){
+                            plateau->abeille = NULL;
+                            plateau->frelon = debut;
+                            return;
+                        }
                     }
                     
                     x = -1;
@@ -451,8 +473,13 @@ void tourFrelon(Grille* plateau){
                     plateau->frelon->desty = y;
                     
                     if(deplacement(&plateau->frelon, &plateau->plateau[y][x], &plateau->plateau[plateau->frelon->posy][plateau->frelon->posx]) == 0)
-                        if(combat(&plateau->plateau[y][x], &plateau->frelon, plateau) == 0)
-                            plateau->ressourcesFrelon += 6;
+                        if(combat(&plateau->plateau[y][x], &plateau->frelon, plateau) == 1){
+                            plateau->abeille = NULL;
+                            plateau->frelon = debut;
+                            return;
+                        }
+                        
+                    
                     x = -1;
                     y = -1;
                 }

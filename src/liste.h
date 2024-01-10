@@ -109,12 +109,12 @@ UListe initListe(char camp);
 UListe inserer(UListe* l, UListe* reine, char camp, char type, int x, int y);
 
 /**
- * @brief suprime la cellule d'adresse l;
+ * @brief suprime la cellule d'adresse l retour ne 1 si il n'y a plus de colonie
  * 
- * @param l 
- * @return UListe 
+ * @param l
+ * @return int
  */
-void suprimeCellule(UListe* l);
+int suprimeCellule(UListe* l);
 
 /**
  * @brief extrait la cellule l de la liste ne peut pas extraire une ruche ou un nid

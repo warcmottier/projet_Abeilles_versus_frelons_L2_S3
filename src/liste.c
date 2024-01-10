@@ -244,12 +244,14 @@ UListe inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
   
     tmp->colprec = *l;
     (*l)->colsuiv = tmp;
-
     *l = (*l)->colsuiv;
+    
+    if(reine != NULL){
+      (*reine)->uprec = *l;
+      (*reine)->usuiv = NULL;
+      (*l)->usuiv = *reine;
+    }
 
-    (*reine)->uprec = *l;
-    (*reine)->usuiv = NULL;
-    (*l)->usuiv = *reine;
   } 
   
   *l = debut;
@@ -260,10 +262,12 @@ UListe inserer(UListe* l, UListe* reine, char camp, char type, int x, int y){
 /**
  * @brief supprime la colonie dont l'adresse de la ruche ou du nid est l
  * 
- * @param l 
+ * @param l
+ * @return int
  */
-void suprimeColonie(UListe* l){
+int suprimeColonie(UListe* l){
   UListe tmp;
+  int fin = 0;
   
   //allez au fon de la colonie que l'on veut effacer
   for(; (*l)->usuiv != NULL; *l = (*l)->usuiv);
@@ -278,7 +282,12 @@ void suprimeColonie(UListe* l){
   //effacer la ruche ou le nid de la colonie
   tmp = *l;
 
-  if((*l)->colprec == NULL){
+  if((*l)->colprec == NULL && (*l)->colsuiv == NULL){
+    *l = NULL;
+    fin = 1;
+  }
+
+  else if((*l)->colprec == NULL){
     *l = tmp->colsuiv;
     (*l)->colprec = NULL;
   }
@@ -300,13 +309,16 @@ void suprimeColonie(UListe* l){
 
   free(tmp);
 
+  return fin;
+
 }
 
-void suprimeCellule(UListe* l){
+int suprimeCellule(UListe* l){
   UListe tmp;
+  int fin = 0;
   // si il faut supprimer une ruche ou un nid on supprime toute la colonie
   if((*l)->type == RUCHE || (*l)->type == NID){
-    suprimeColonie(l);
+    fin = suprimeColonie(l);
   }
   
   else{
@@ -326,6 +338,8 @@ void suprimeCellule(UListe* l){
       
     free(tmp);
   }
+
+  return fin;
 }
 
 UListe extraitCellule(UListe* l){

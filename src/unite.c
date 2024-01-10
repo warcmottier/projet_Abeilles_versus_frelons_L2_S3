@@ -119,6 +119,7 @@ void insererOrdre(Case* cases, UListe* unite){
 void rechainerCaseActuelle(Case* casesActuelle, UListe *unite){
     UListe debut = casesActuelle->occupant;
 
+    
     if(casesActuelle->occupant->vsuiv == NULL && casesActuelle->occupant->vprec == NULL){
         casesActuelle->occupant = NULL;
         return;
@@ -192,7 +193,6 @@ void fonderCol(Case* cases, UListe* unite){
     //on trouve la ruche de la liste des unite dans laquelle on se trouve
     
     for(; cases->occupant->type != RUCHE && cases->occupant->type != NID; cases->occupant = cases->occupant->uprec);
-    
 
     ruche = cases->occupant;
 
@@ -205,5 +205,6 @@ void fonderCol(Case* cases, UListe* unite){
 
     //la nouvelle ruche se trouve sur la case dans la quelle elle se trouve
     cases->colonie = reine->uprec;
+    //printf("%p\n", reine->uprec);
     
 }

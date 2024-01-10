@@ -1,4 +1,4 @@
-### Rapport projet abeille VS frelon
+# Rapport projet abeille VS frelon
 
 ## Compilation et Utilisation
 
@@ -26,4 +26,5 @@ Ici nous allons parler des fonctions un peu compliquées comme la fonction dépl
 
 Dans la fonction deplacementc ce qui a posé le plus de problèmes, il s'agit du rajout d'une unité qui vient d'être crée, ou quand on charge une sauvegarde et quelle n'a aucune case où elle était au debut, cela posait des problèmes pour les rechainages sur la 3eme liste chainée, nous vérifions donc si il existe une case actuelle ou non.
 
-Dans la fonction TourAbeille et TourFrelon, nous parcourons les listes en faisant attention à garder en mémoire la ruche de la colonie que nous traversons, afin d'éviter des déplacements inutile dans la liste et pour chaque unité nous faisons un switch case afin de savoir quelle unite somme nous entrain de jouer et d'afficher le menu de la bonne unité, menu qui nous renvoie le choix de l'utilisateur afin de faire les fonctions voulue.
+Dans la fonction ```TourAbeille``` et ```TourFrelon```, nous parcourons les listes en faisant attention à garder en mémoire la ruche de la colonie que nous traversons, afin d'éviter des déplacements inutile dans la liste et pour chaque unité nous faisons un ```switch case``` afin de savoir quelle unite somme nous entrain de jouer et d'afficher le menu de la bonne unité, menu qui nous renvoie le choix de l'utilisateur afin de faire les fonctions voulue.
+

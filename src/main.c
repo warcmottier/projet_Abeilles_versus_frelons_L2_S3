@@ -21,12 +21,32 @@ int main(int argc, char* argv[]){
 
     MLV_create_window("", "", 1000, 1080);
 
-    
     while (plateau.abeille != NULL && plateau.frelon != NULL){
         alea = rand() % 2;
 
-        if(alea == 0 || camp == ABEILLE){
+        if(camp == ABEILLE){
+            menueSauv(ABEILLE, plateau, argv[1]);
+            quitter = quit(ABEILLE);
+            if(quitter == 'q')
+                break;
+
+            tourAbeille(&plateau);
+            tourFrelon(&plateau);
             camp = 0;
+        }
+
+        if(camp == FRELON){
+            menueSauv(FRELON, plateau, argv[1]);
+            quitter = quit(FRELON);
+            if(quitter == 'q')
+                break;
+
+            tourFrelon(&plateau);
+            tourAbeille(&plateau);
+            camp = 0;
+        }
+
+        if(alea == 0 || camp == ABEILLE){
             menueSauv(ABEILLE, plateau, argv[1]);
             quitter = quit(ABEILLE);
             if(quitter == 'q')
@@ -41,7 +61,6 @@ int main(int argc, char* argv[]){
         }
 
         else{
-            camp = 0;
             menueSauv(FRELON, plateau, argv[1]);
             quitter = quit(FRELON);
             if(quitter == 'q')
@@ -61,9 +80,9 @@ int main(int argc, char* argv[]){
     MLV_free_window();
 
     if(plateau.abeille == NULL)
-        printf("les frelon on gagner");
+        printf("les frelon on gagner\n");
     else if(plateau.frelon == NULL)
-        printf("les abeille on gagner");
+        printf("les abeille on gagner\n");
 
     libereListe(&plateau.abeille);
     libereListe(&plateau.frelon);
